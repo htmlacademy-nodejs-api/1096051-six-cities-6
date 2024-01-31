@@ -1,5 +1,4 @@
-import { getErrorMessage } from '../../shared/helpers/common.js';
-import { createOffer } from '../../shared/helpers/offers.js';
+import { getErrorMessage, createOffer } from '../../shared/helpers/index.js';
 import { TSVFileReader } from '../../shared/libs/file-reader/tsv-file-reader.js';
 import { Command } from './command.interface.js';
 
