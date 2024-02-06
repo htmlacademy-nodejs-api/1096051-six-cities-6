@@ -1,21 +1,22 @@
-import { User, Coordinates } from './index.js';
+import { User, Coordinates, City, AppartmentType, Facilities } from './index.js';
 
 export type RentOffer = {
   title: string,
   description: string,
   postDate: Date,
-  city: string,
+  city: City,
   previewImg: string,
   images: string[],
   isPremium: boolean,
+  isFavorite: boolean,
   rating: number,
-  type: string,
+  type: AppartmentType,
   rooms: number,
   guests: number,
   price: number,
-  benefits: string[],
+  facilities: Facilities[],
   author: User,
-  comments: number,
-  coordinates: Coordinates
+  commentsCount: number,
+  coordinates: Coordinates,
 }
 
