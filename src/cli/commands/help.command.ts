@@ -15,7 +15,6 @@ export class HelpCommand implements Command {
         --help                      # посмотреть команды
         --import <path>:            # импортирует данные из TSV
         --generate <n> <path> <url> # генерирует произвольное количество тестовых данных
-        --game                      # запустить игру <Угадай число>
     `);
   }
 }
