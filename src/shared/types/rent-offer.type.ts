@@ -16,7 +16,6 @@ export type RentOffer = {
   price: number,
   facilities: Facilities[],
   author: User,
-  commentsCount: number,
   coordinates: Coordinates,
 }
 
