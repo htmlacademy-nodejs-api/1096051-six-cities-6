@@ -1,27 +1,57 @@
-import { getModelForClass, prop } from '@typegoose/typegoose';
+import { defaultClasses, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 import { User, UserType } from '../../types/index.js';
+import { createSHA256 } from '../../helpers/index.js';
 
 const MIN_NAME_LENGTH = 1;
 const MAX_NAME_LENGTH = 15;
 
-const MIN_PASSWORD_LENGTH = 6;
-const MAX_PASSWORD_LENGTH = 12;
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+export interface UserEntity extends defaultClasses.Base {}
 
-export class UserEntity implements User {
+@modelOptions({
+  schemaOptions: {
+    collection: 'users',
+    timestamps: true
+  }
+})
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+export class UserEntity extends defaultClasses.TimeStamps implements User {
   @prop({ required: true, minlength: [MIN_NAME_LENGTH, `Min user name length ${MIN_NAME_LENGTH}`], maxlength: [MAX_NAME_LENGTH, `Max user name length ${MAX_NAME_LENGTH}`]})
   public name: string;
 
-  @prop({ unique: true, required: true, match: [/^([\w-\\.]+@([\w-]+\.)+[\w-]{2,4})?$/, 'Email is incorrect'] })
+  @prop({ unique: true, required: true})
   public email: string;
 
-  @prop({ match: [/[^\s]+(.*?).(jpg|png|JPG|PNG)$/, 'Image is incorrect'] })
+  @prop({ required: true })
   public avatar: string;
 
-  @prop({ required: true, minlength: [MIN_PASSWORD_LENGTH, `Min user name length ${MIN_PASSWORD_LENGTH}`], maxlength: [MAX_PASSWORD_LENGTH, `Max user name length ${MAX_PASSWORD_LENGTH}`]})
+  @prop({ required: true })
   public password: string;
 
-  @prop({ required: true })
-  public type: UserType;
+  @prop({
+    required: true,
+    type: () => String,
+    enum: UserType
+  })
+  public type!: UserType;
+
+  constructor(userData: User) {
+    super();
+
+    this.email = userData.email;
+    this.name = userData.name;
+    this.avatar = userData.avatar;
+    this.password = userData.password;
+    this.type = userData.type;
+  }
+
+  public setPassword(password: string, salt: string) {
+    this.password = createSHA256(password, salt);
+  }
+
+  public getPassword() {
+    return this.password;
+  }
 }
 
-export const UserModal = getModelForClass(UserEntity);
+export const UserModel = getModelForClass(UserEntity);
