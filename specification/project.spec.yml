@@ -7,3 +7,528 @@ info:
     name: MIT
     url: https://opensource.org/licenses/MIT
   version: 2.0.0
+
+tags:
+  - name: offers
+    description: Действия с объявлениями.
+  - name: comments
+    description: Действия с комментариями.
+  - name: users
+    description: Действия с пользователем.
+
+paths:
+  /users/register:
+    post:
+      tags:
+        - users
+      summary: Регистрация пользователя.
+      description: Регистрация нового пользователя, только анонимным.
+
+      requestBody:
+        description: Информация для создания нового пользователя.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createUser'
+        required: true
+
+      responses:
+        "201":
+          description: Пользователь зарегистрирован. Объект пользователя.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+
+        "409":
+          description: Пользователь с таким email уже существует.
+
+    get:
+      tags:
+        - users
+      summary: Получить информацию о созданном пользователе.
+      description: Получить информацию о созданном пользователе (объекте) или ошибку.
+
+  /users/login:
+    post:
+      tags:
+        - users
+      summary: Авторизация пользователя.
+      description: Авторизация пользователя через логин и пороль.
+
+      requestBody:
+        description: Данные для авторизации.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userLogin'
+        required: true
+
+      responses:
+        "200":
+          description: Успешная авторизация. Токен клиента.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/session'
+
+        "401":
+          description: Неврный логин или пароль.
+
+    get:
+      tags:
+        - users
+      summary: Проверка состояния пользователя
+      description: Возвращает информацию по авторизованному пользователю
+
+      responses:
+        "200":
+          description: Пользователь авторизован. Объект пользователя.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+
+          "401":
+           description: Не авторизован, сессионного токена нету.
+
+  /users/{userId}/avatar:
+    patch:
+      tags:
+        - users
+      summary: Загрузить изображение аватара
+      description: Загружает изображение аватара пользователя. Изображение
+        аватара должно быть в формате `png` или `jpg`.
+
+      requestBody:
+        description: Изображение автара URL.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userAvatar'
+        required: true
+
+      responses:
+        "200":
+          description: Аватар успешно обновлен.
+
+        "401":
+          description: Аватар не загружен.
+
+  /offers/list/{offersCount}:
+    get:
+      tags:
+        - offers
+      summary: Получить список объявлений.
+      description: Получить список из не более чем 60 объявлений,
+        список сортирован по дате публикации (по убыванию).
+
+      responses:
+        "200":
+          description: Список объявлений успешно загружен.
+
+        "401":
+          description: Не удалось загрузить список объявлений.
+
+  /offers/create:
+    post:
+      tags:
+        - offers
+      summary: Создание объявления.
+      description: Создание нового объявления. Только авторизованные.
+
+      requestBody:
+        description: Данные для создания объявления.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createOffer'
+        required: true
+
+      responses:
+        "201":
+          description: Объявление добавлено.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offer'
+
+        "401":
+          description: Не удалось добавить объявление.
+
+  /offers/{offerId}:
+    get:
+      tags:
+        - offers
+      summary: Получить информацию по объявлению..
+      description: Получить детальную информацию по объявлению.
+
+      responses:
+        "200":
+          description: Детальная информация объявления успешно загружена.
+
+        "401":
+          description: Не удалось загрузить информацию объявления.
+
+    patch:
+      tags:
+        - offers
+      summary: Редактирование объявления.
+      description: Редактирование созданного объявления,
+        можно редактировать только свои объявления. Только авторизованные.
+
+      requestBody:
+        description: Обновленные данные для объявления.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createOffer'
+        required: true
+
+      responses:
+        "201":
+          description: Обявление успешно обновленно.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offer'
+
+        "401":
+          description: Не удалось редактировать объявление.
+
+    delete:
+      tags:
+        - offers
+      summary: Удаление объявления.
+      description: Удаление созданного объявления, можно удалить только свои объявления. Только авторизованные.
+
+      responses:
+        "201":
+          description: Обявление успешно удалено.
+
+        "401":
+          description: Не удалось удалить объявление.
+
+  /offers/{city}/premium:
+    get:
+      tags:
+        - offers
+      summary: Получить премиальыне предложения по городу.
+      description: Получить премиальыне предложения по городу, не более 3 с флагом Premium, по дате убывания сортировка.
+
+      responses:
+        "201":
+          description: Премиальные объявления успешно загружены.
+
+        "401":
+          description: Не удалось загрузить премиальные объявления.
+
+  /users/favorites:
+    get:
+      tags:
+        - offers
+      summary: Получить объявления в избранном.
+      description: Получить объявления добавленные в избранное. Только авторизованным.
+
+      responses:
+        "201":
+          description: Избранные объявления загружены.
+
+        "401":
+          description: Не удалось загрузить избранные объявления.
+
+  /users/{offerId}/favorite:
+    patch:
+      tags:
+        - offers
+      summary: Обновить статус избранного у объявления.
+      description: Обновить статус избранного у объявления. Только авторизованным.
+
+      requestBody:
+        description: Обновленные статус избарнного для объявления.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/offerFavorite'
+        required: true
+
+      responses:
+        "201":
+          description: Избранные объявления загружены.
+
+        "401":
+          description: Не удалось загрузить избранные объявления.
+
+  /offers/{offerId}/comments:
+
+    get:
+      tags:
+        - comments
+      summary: Получить список комментариев к объявлению.
+      description: Получить список комментариев к определенному объявлению, из 50 или меньше комментариев, сортировка по убыванию даты.
+
+      responses:
+        "201":
+          description: Получен список комментарие.
+
+        "401":
+          description: Не удалось загрузить комментарии.
+
+  /comments/{offerId}/create:
+    post:
+      tags:
+        - comments
+      summary: Создать комментарий к объявлению.
+      description: Создать комментарий к объявлению. Только авторизованные.
+
+      requestBody:
+        description: Данные для создания комментария.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createComment'
+        required: true
+
+      responses:
+        "201":
+          description: Комментарий создан.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/comment'
+
+        "401":
+          description: Не удалось сздать комментарий.
+
+
+components:
+  schemas:
+    createUser:
+      type: object
+
+      properties:
+        email:
+          type: string
+          example: keks@htmlacademy.ru
+
+        name:
+          type: string
+          example: Keks
+
+        password:
+          type: string
+          example: 123456
+
+        type:
+          type: string
+          example: обычный
+
+    user:
+      type: object
+
+      properties:
+        id:
+          type: string
+          example: 6329c3d6a04ab1061c6425ea
+
+        name:
+          type: string
+          example: Keks
+
+        email:
+          type: string
+          example: keks@htmlacademy.ru
+
+        type:
+          type: string
+          example: обычный
+
+    userLogin:
+      type: object
+
+      properties:
+        email:
+          type: string
+          example: keks@htmlacademy.ru
+
+        password:
+          type: string
+          example: 123456
+
+    session:
+      type: object
+
+      properties:
+        token:
+          type: string
+          example: awjb124jkhyg312yug4v11j2h3b4jb12
+
+    userAvatar:
+      type: object
+
+      properties:
+        avatar:
+          type: string
+          example: avatar.jpg
+
+    offer:
+      type: object
+
+      properties:
+        id:
+          type: string
+          example: 6329c3d6a04ab1061c6425ea
+
+        postDate:
+          type: string
+          example: 02.12.2023
+
+        title:
+          type: string
+          example: Двушка в москве
+
+        description:
+          type: string
+          example: Описание объявления
+
+        city:
+          type: string
+          example: Amsterdam
+
+        previewImg:
+          type: string
+          example: city.jpg
+
+        images:
+          type: array
+          example: [city.jpg, college.png]
+
+        isPremium:
+          type: boolean
+          example: true
+
+        isFavorite:
+          type: boolean
+          example: true
+
+        rating:
+          type: number
+          example: 2
+
+        guests:
+          type: number
+          example: 2
+
+        price:
+          type: number
+          example: 2
+
+        facilities:
+          type: array
+          example: ['Breakfast', 'Baby seat']
+
+        authorId:
+          type: string
+          example: 6329c3d6a04ab1061c6425ea
+
+        coordinates:
+          type: object
+          example: {
+            latitude: number,
+            longitude: number,
+          }
+
+    createOffer:
+      type: object
+
+      properties:
+        title:
+          type: string
+          example: Двушка в москве
+
+        description:
+          type: string
+          example: Описание объявления
+
+        city:
+          type: string
+          example: Amsterdam
+
+        previewImg:
+          type: string
+          example: city.jpg
+
+        images:
+          type: array
+          example: [city.jpg, college.png]
+
+        isPremium:
+          type: boolean
+          example: true
+
+        isFavorite:
+          type: boolean
+          example: true
+
+        rating:
+          type: number
+          example: 2
+
+        guests:
+          type: number
+          example: 2
+
+        price:
+          type: number
+          example: 2
+
+        facilities:
+          type: array
+          example: ['Breakfast', 'Baby seat']
+
+        coordinates:
+          type: object
+          example: {
+            latitude: number,
+            longitude: number,
+          }
+
+      offerFavorite:
+        type: object
+
+        properties:
+          isFavorite:
+            type: boolean
+            example: true
+
+      createComment:
+        type: object
+
+        properties:
+          text:
+            type: string
+            example: Да хорошая квартира.
+
+          rating:
+            type: number
+            example: 3
+
+      comment:
+        type: object
+
+        properties:
+          text:
+            type: string
+            example: Да хорошая квартира.
+
+          rating:
+            type: number
+            example: 3
+
+          postDate:
+            type: string
+            example: 02.12.2023
+
+          authorId:
+            type: string
+            example: ahwbdy123235rtedtm
