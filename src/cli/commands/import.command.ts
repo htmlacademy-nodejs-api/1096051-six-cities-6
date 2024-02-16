@@ -3,15 +3,17 @@ import { DatabaseClient, MongoDatabaseClient } from '../../shared/libs/database-
 import { TSVFileReader } from '../../shared/libs/file-reader/index.js';
 import { ConsoleLogger } from '../../shared/libs/logger/console.logger.js';
 import { Logger } from '../../shared/libs/logger/index.js';
-import { DefaultOfferService, OfferModel, OfferService } from '../../shared/modules/offer/index.js';
-import { DefaultUserService, UserModel, UserService } from '../../shared/modules/user/index.js';
 import { RentOffer } from '../../shared/types/index.js';
 import { DEFAULT_DB_PORT, DEFAULT_USER_PASSWORD } from './command.constant.js';
 import { Command } from './command.interface.js';
+import { CommentModel, CommentService, DefaultCommentService } from '../../shared/modules/comment/index.js';
+import { DefaultOfferService, OfferModel, OfferService } from '../../shared/modules/offer/index.js';
+import { DefaultUserService, UserModel, UserService } from '../../shared/modules/user/index.js';
 
 export class ImprotCommand implements Command {
   private userService: UserService;
   private offerService: OfferService;
+  private commentSevice: CommentService; // to do
   private databaseClient: DatabaseClient;
   private logger: Logger;
   private salt: string;
@@ -23,6 +25,7 @@ export class ImprotCommand implements Command {
     this.logger = new ConsoleLogger();
     this.offerService = new DefaultOfferService(this.logger, OfferModel);
     this.userService = new DefaultUserService(this.logger, UserModel);
+    this.commentSevice = new DefaultCommentService(this.logger, CommentModel);
     this.databaseClient = new MongoDatabaseClient(this.logger);
   }
 
